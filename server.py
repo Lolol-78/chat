@@ -28,11 +28,15 @@ def handle_client(conn: socket.socket, addr):
             msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 connected = False
+                print(f"[{addr}]{username}: disconnected")
+                conn.send(DISCONNECT_MESSAGE.encode(FORMAT))
             elif msg.startswith('username: '):
                 username = msg[10:]
+                print(f"[{addr}] username is now {username}")
             else:
                 print(f"[{addr}]{username}: {msg}")
                 messages.append((addr, msg))
+                conn.send(f"[SERVER] recieved message: {msg}".encode(FORMAT))
     
     
     conn.close()

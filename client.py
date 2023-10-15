@@ -1,4 +1,5 @@
 import socket
+import threading
 
 HEADER = 64
 PORT = 5050
@@ -19,15 +20,29 @@ def send(msg):
     send_length += b' ' * (HEADER - len(send_length))
     client.send(send_length)
     client.send(message)
-    print(client.recv(2048).decode(FORMAT))
-
-send('Hello World')
-input()
-send('Hello everyone')
-input()
-send('Hello you')
-
-send(DISCONNECT_MESSAGE)
 
 
+def handle_server():
+    while True:
+        msg = client.recv(2048).decode(FORMAT)
+        if msg == DISCONNECT_MESSAGE:
+            print('[CLIENT] disconnecting...')
+            break
+        print(msg)
+
+
+def loop():
+    while True:
+        message = input()
+        if message == 'disconnect':
+            send(DISCONNECT_MESSAGE)
+            break
+        elif message.startswith('send: '):
+            send(message[6:])
+
+loop_thread = threading.Thread(target=loop)
+server_thread = threading.Thread(target=handle_server)
+
+loop_thread.start()
+server_thread.start()
 
