@@ -37,8 +37,8 @@ def loop():
         if message == 'disconnect':
             send(DISCONNECT_MESSAGE)
             break
-        elif message.startswith('send: '):
-            send(message[6:])
+        else:
+            send(message)
 
 loop_thread = threading.Thread(target=loop)
 server_thread = threading.Thread(target=handle_server)
