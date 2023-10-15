@@ -12,8 +12,13 @@ DISCONNECT_MESSAGE = '!DISCONNECT'
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(ADDR)
 
+messages = []
+
+
 def handle_client(conn: socket.socket, addr):
     print(f"[NEW CONNECTION] {addr} connected")
+    
+    username = ""
     
     connected = True
     while connected:
@@ -23,9 +28,11 @@ def handle_client(conn: socket.socket, addr):
             msg = conn.recv(msg_length).decode(FORMAT)
             if msg == DISCONNECT_MESSAGE:
                 connected = False
-            conn.send('Message recieved'.encode(FORMAT))
-            
-            print(f"[{addr}] {msg}")
+            elif msg.startswith('username: '):
+                username = msg[10:]
+            else:
+                print(f"[{addr}]{username}: {msg}")
+                messages.append((addr, msg))
     
     
     conn.close()
