@@ -3,7 +3,7 @@ import threading
 
 HEADER = 64
 PORT = 5050
-SERVER = socket.gethostbyname(socket.gethostname())
+SERVER = '172.21.6.50'
 ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 DISCONNECT_MESSAGE = '!DISCONNECT'
@@ -31,8 +31,10 @@ def handle_client(conn: socket.socket, addr):
                 connected = False
                 print(f"[{addr}]{username}: disconnected")
                 conn.send(DISCONNECT_MESSAGE.encode(FORMAT))
-                
-                messages.append((addr, '[DECONNECTION]'))
+                if username != '':
+                    messages.append(('[DECONNECTION]', addr, username))
+                else:
+                    messages.append(('[DECONNECTION]', addr))
             
             elif msg.startswith('username: '):
                 username = msg[10:]
@@ -46,7 +48,10 @@ def handle_client(conn: socket.socket, addr):
             
             else:
                 print(f"[{addr}]{username}: {msg}")
-                messages.append((addr, msg))
+                if username != '':
+                    messages.append((msg, addr, username))
+                else:
+                    messages.append((msg, addr))
     
     if username != "":
         connections.remove([conn, addr, username])
@@ -60,9 +65,9 @@ def handle_messages():
         if new_messages != []:
             for message in new_messages:
                 for conn in connections:
-                    if message[0] != conn[1]:
-                        username = conn[-1]
-                        conn[0].send(f"{username}: {message[1]}".encode(FORMAT))
+                    if message[1] != conn[1]:
+                        username = message[-1]
+                        conn[0].send(f"{username}: {message[0]}".encode(FORMAT))
                 messages.remove(message)
 
 
